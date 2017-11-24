@@ -3,6 +3,7 @@ import importlib
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 from .factory import WebSocketFactory
+from django.utils.deprecation import MiddlewareMixin
 
 
 WEBSOCKET_ACCEPT_ALL = getattr(settings, 'WEBSOCKET_ACCEPT_ALL', False)
@@ -15,12 +16,12 @@ WEBSOCKET_FACTORY_CLASS = getattr(
 logger = logging.getLogger(__name__)
 
 
-class WebSocketMiddleware(object):
+class WebSocketMiddleware(MiddlewareMixin):
     @classmethod
     def process_request(cls, request):
         try:
             offset = WEBSOCKET_FACTORY_CLASS.rindex(".")
-            
+
             factory_cls = getattr(
                 importlib.import_module(WEBSOCKET_FACTORY_CLASS[:offset]),
                 WEBSOCKET_FACTORY_CLASS[offset+1:]
